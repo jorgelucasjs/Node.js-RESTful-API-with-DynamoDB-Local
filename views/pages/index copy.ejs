@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+	<%- include('../partials/head'); %>
+</head>
+
+<body class="container">
+
+	<header>
+		<%- include('../partials/header'); %>
+	</header>
+
+	<main>
+		<div class="jumbotron">
+			<h1>top mascots</h1>
+			<!-- <p>
+				<%= tagline %>
+			</p> -->
+
+			<ul>
+				<% mascots.forEach(function(movie) { %>
+					<li>
+						<strong>
+							<%= movie.name %>
+						</strong>
+						representing <%= movie.organization %>, born <%= movie.birth_year %>
+					</li>
+					<% }); %>
+			</ul>
+		</div>
+	</main>
+
+	<footer>
+		<%- include('../partials/footer'); %>
+	</footer>
+
+</body>
+
+</html>

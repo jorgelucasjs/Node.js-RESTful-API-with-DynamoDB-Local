@@ -1,0 +1,77 @@
+service: serverlesslocal
+
+provider:
+    name: aws
+    runtime: nodejs12.x
+    stage: ${opt:stage, 'dev'}
+    region: ${opt:region, 'eu-west-1'} 
+    memorySize: 128
+    timeout: 3
+    environment:
+        tableName: ${self:custom.tableName}
+        bucketName: ${self:custom.bucketName}
+    iamRoleStatements:
+        - Effect: Allow
+          Action:
+              - dynamodb:*
+              - s3:*
+              - ses:*
+          Resource: '*'
+    lambdaHashingVersion: 20201221
+
+plugins:
+    - serverless-webpack
+    - serverless-offline
+    - serverless-dynamodb-local
+   
+package:
+    individually: true
+
+custom:
+    tableName: premium_plans
+    bucketName: myserverlessprojectuploadbucket-123123
+    dynamodb:
+        stages:
+            - dev
+        start:
+            port: 8000
+            inMemory: true
+            migrate: true
+        migration:
+            dir: offline/migrations
+
+functions:
+    getUserPremium:
+        handler: lambdas/endpoints/getUserPremium.handler
+        events:
+            - http:
+                  path: get-user-premium/{ID}
+                  method: GET
+                  cors: true
+    createUserPremium:
+        handler: lambdas/endpoints/createUserPremium.handler
+        events:
+            - http:
+                  path: create-user-premium/{ID}
+                  method: POST
+                  cors: true
+
+resources:
+    Resources:
+        DemoBucketUpload:
+            Type: AWS::S3::Bucket
+            Properties:
+                BucketName: ${self:custom.bucketName}
+        MyDynamoDbTable:
+            Type: AWS::DynamoDB::Table
+            Properties:
+                TableName: ${self:custom.tableName}
+                AttributeDefinitions:
+                    - AttributeName: ID
+                      AttributeType: S
+                KeySchema:
+                    - AttributeName: ID
+                      KeyType: HASH
+                BillingMode: PAY_PER_REQUEST
+
+
